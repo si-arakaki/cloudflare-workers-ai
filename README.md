@@ -32,3 +32,10 @@ npm run dev
 - [Models · Cloudflare Workers AI docs](https://developers.cloudflare.com/workers-ai/models/)
 - [workers-sdk/packages/wrangler at main · cloudflare/workers-sdk](https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler)
 - [kwhitley/itty-router: A little router.](https://github.com/kwhitley/itty-router)
+
+## Credits
+
+- サンプル画像
+  - 架乃 ゆら - 映画『グッドバイ、バッドマガジンズ』舞台挨拶（2023年） - © ニール・マッコーリー
+    - https://commons.wikimedia.org/wiki/File:Gbbm_0109Kanoyura.jpg
+    - サンプル画像にはAIにより改変された画像を含みます
