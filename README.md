@@ -1,5 +1,7 @@
 # cloudflare-workers-ai
 
+<img src="https://repository-images.githubusercontent.com/765511674/e58ccc2e-c651-428f-8106-9ad94558d6f5">
+
 ## Setup
 
 ### Sign in Cloudflare
