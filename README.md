@@ -23,3 +23,7 @@ npm run dev
 ### /inpaint
 
 <img src="https://github.com/si-arakaki/cloudflare-workers-ai/assets/75659736/7a4a0f64-a598-4a99-aff3-e1c140f62fb7" width="240">
+
+## References
+
+- [Models · Cloudflare Workers AI docs](https://developers.cloudflare.com/workers-ai/models/)
