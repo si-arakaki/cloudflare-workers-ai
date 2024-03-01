@@ -1,15 +1,19 @@
 {
-  "name": "hello-ai",
+  "name": "cloudflare-workers-ai",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev"
+    "dev": "wrangler dev --remote"
   },
   "devDependencies": {
+    "@cloudflare/ai": "^1.0.53",
     "@cloudflare/workers-types": "^4.20240222.0",
     "typescript": "^5.0.4",
     "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "itty-router": "^4.0.27",
+    "zod": "^3.22.4"
   }
 }

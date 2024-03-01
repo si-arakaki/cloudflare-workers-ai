@@ -1,0 +1,201 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="container p-4">
+  <h1 class="text-lg font-bold">Inpaint</h1>
+
+  <form id="form" class="flex flex-col items-stretch gap-y-4 mt-4">
+    <div class="flex flex-col items-stretch gap-y-1">
+      <div class="flex gap-2">
+        <div>
+          <label for="image-field" class="label">Image</label>
+
+          <input type="file" accept="image/*" name="image" id="image-field" class="hidden" />
+
+          <div class="flex justify-center aspect-square w-60 bg-slate-400 rounded object-contain">
+            <canvas id="image-canvas" width="0" height="0"></canvas>
+          </div>
+        </div>
+
+        <div>
+          <label for="mask-field" class="label">Mask</label>
+
+          <input type="file" name="mask" id="mask-field" class="hidden" />
+
+          <div class="relative aspect-square w-60 bg-slate-400 rounded object-contain">
+            <img id="image-preview"
+              class="absolute top-0 right-0 bottom-0 left-0 m-auto w-auto h-auto max-w-full max-h-full">
+
+            <canvas id="mask-canvas" width="0" height="0"
+              class="absolute top-0 right-0 bottom-0 left-0 m-auto w-auto h-auto max-w-full max-h-full opacity-50"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col items-stretch gap-y-1">
+      <label id="prompt-field" class="label">Prompt</label>
+
+      <textarea name="prompt" id="prompt-field" placeholder="Hawaiian shirt"
+        class="border rounded px-2 py-1"></textarea>
+    </div>
+
+    <button type="submit"
+      class="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded shadow-sm">Submit</button>
+  </form>
+
+  <div class="overflow-x-auto">
+    <div id="result-container" class="mt-4"></div>
+  </div>
+</div>
+
+<script>
+  (async () => {
+    const imageField = document.querySelector("#image-field");
+    const imageCanvas = document.querySelector("#image-canvas");
+    const maskField = document.querySelector("#mask-field");
+    const maskCanvas = document.querySelector("#mask-canvas");
+    const imagePreview = document.querySelector("#image-preview");
+    const form = document.querySelector("#form");
+    const resultContainer = document.querySelector("#result-container");
+
+    (async (tmpImage) => {
+      tmpImage.crossOrigin = "anonymous";
+
+      tmpImage.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Gbbm_0109Kanoyura.jpg/440px-Gbbm_0109Kanoyura.jpg";
+
+      tmpImage.onload = async (event) => {
+        const imageFile = await new Promise(async (resolve) => {
+          imageCanvas.width = tmpImage.width;
+          imageCanvas.height = tmpImage.height;
+          imageCanvas.style.maxWidth = `${tmpImage.width}px`;
+          imageCanvas.style.maxHeight = `${tmpImage.height}px`;
+
+          const ctx = imageCanvas.getContext("2d");
+
+          ctx.drawImage(tmpImage, 0, 0, imageCanvas.width, imageCanvas.height);
+
+          imageCanvas.toBlob((blob) => {
+            resolve(new File([blob], "image.png", {
+              type: "image/png",
+            }));
+          });
+        });
+
+        imageField.files = ((dataTransfer) => {
+          dataTransfer.items.add(imageFile);
+
+          return dataTransfer;
+        })(new DataTransfer()).files;
+
+        (async () => {
+          imagePreview.width = tmpImage.width;
+          imagePreview.height = tmpImage.height;
+          imagePreview.src = tmpImage.src;
+        })();
+
+        const maskFile = await new Promise(async (resolve) => {
+          maskCanvas.width = tmpImage.width;
+          maskCanvas.height = tmpImage.height;
+
+          const ctx = maskCanvas.getContext("2d");
+
+          ctx.drawImage(tmpImage, 0, 0, maskCanvas.width, maskCanvas.height);
+
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+          ctx.fillStyle = "black";
+          ctx.fillRect(0, 0, maskCanvas.width, maskCanvas.height / 2);
+
+          maskCanvas.toBlob((blob) => {
+            resolve(new File([blob], "mask.png", {
+              type: "image/png",
+            }));
+          });
+        });
+
+        maskField.files = ((dataTransfer) => {
+          dataTransfer.items.add(maskFile);
+
+          return dataTransfer;
+        })(new DataTransfer()).files;
+      };
+    })(new Image());
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      form.classList.add("pointer-events-none", "opacity-50");
+
+      const formData = new FormData(form);
+
+      let intervalID = null;
+
+      resultContainer.appendChild((() => {
+        const p = document.createElement("p");
+
+        p.innerHTML = ([
+          "===== [ASK] >>>>>",
+          formData.get("prompt").replace(/\r?\n/g, "<br />"),
+        ]).join("<br />");
+
+        p.appendChild((() => {
+          const span = document.createElement("span");
+
+          span.classList.add("block");
+
+          span.textContent = ">";
+
+          intervalID = setInterval(() => {
+            span.textContent = span.textContent + ">";
+          }, 1000);
+
+          return span;
+        })());
+
+        return p;
+      })());
+
+      try {
+        const response = await fetch("/inpaint", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        clearInterval(intervalID);
+
+        const responseData = await response.blob();
+
+        resultContainer.appendChild((() => {
+          const img = document.createElement("img");
+
+          img.src = URL.createObjectURL(responseData);
+
+          return img;
+        })());
+      } catch (err) {
+        clearInterval(intervalID);
+
+        resultContainer.appendChild((() => {
+          const p = document.createElement("p");
+
+          p.innerHTML = ([
+            "!!!!! [FAILED] -----",
+            JSON.stringify(err, null, "  "),
+            "!!!!! --------------",
+          ]).join("<br />");
+
+          return p;
+        })());
+      }
+
+      form.classList.remove("pointer-events-none", "opacity-50");
+    });
+  })();
+</script>

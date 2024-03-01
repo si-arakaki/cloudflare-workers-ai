@@ -1,0 +1,15 @@
+services:
+  app:
+    image: localhost/cloudflare-workers-ai
+    build:
+      dockerfile: Dockerfile
+    container_name: cloudflare-workers-ai
+    command: nginx -g 'daemon off;'
+    volumes:
+      - ..:/workspace:cached
+      - ../.wrangler:/root/.wrangler:cached
+      - ../.nginx/conf/nginx.conf:/usr/local/nginx/conf/nginx.conf
+      - ../.nginx/favicon.ico:/usr/share/nginx/html/favicon.ico:cached
+    ports:
+      - 8787:3000
+      - 8976:3001

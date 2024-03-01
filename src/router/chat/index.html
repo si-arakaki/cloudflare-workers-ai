@@ -1,0 +1,89 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="container p-4">
+  <h1 class="text-lg font-bold">Chat</h1>
+
+  <form id="form" class="flex flex-col items-stretch gap-y-4 mt-4">
+    <div class="flex flex-col items-stretch gap-y-1">
+      <label for="prompt-field" class="label">Prompt</label>
+
+      <textarea name="prompt" id="prompt-field" placeholder="What is the origin of the phrase Hello, World"
+        class="border rounded px-2 py-1"></textarea>
+    </div>
+
+    <button type="submit"
+      class="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded shadow-sm">Submit</button>
+  </form>
+
+  <div class="overflow-x-auto">
+    <pre id="result-container" class="mt-4"></pre>
+  </div>
+</div>
+
+<script>
+  (async () => {
+    const form = document.querySelector("#form");
+    const resultContainer = document.querySelector("#result-container");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      form.classList.add("pointer-events-none", "opacity-50");
+
+      const formData = new FormData(form);
+
+      resultContainer.textContent = ([
+        resultContainer.textContent,
+        "",
+        "===== [ASK] >>>>>",
+        formData.get("prompt"),
+        ">",
+      ]).join("\n");
+
+      const intervalID = setInterval(() => {
+        resultContainer.textContent = resultContainer.textContent + ">";
+      }, 1000);
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          body: JSON.stringify({
+            prompt: formData.get("prompt"),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        clearInterval(intervalID);
+
+        const responseData = await response.json();
+
+        resultContainer.textContent = ([
+          resultContainer.textContent,
+          "",
+          "<<<<< [ANSWER] -----",
+          responseData.result.response,
+          "<<<<< --------------",
+          "",
+        ]).join("\n");
+      } catch (err) {
+        clearInterval(intervalID);
+
+        resultContainer.textContent = ([
+          resultContainer.textContent,
+          "",
+          "!!!!! [FAILED] -----",
+          JSON.stringify(err, null, "  "),
+          "!!!!! --------------",
+          "",
+        ]).join("\n");
+      }
+
+      form.classList.remove("pointer-events-none", "opacity-50");
+    });
+  })();
+</script>

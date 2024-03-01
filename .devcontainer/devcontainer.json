@@ -1,0 +1,16 @@
+{
+  "name": "cloudflare-workers-ai",
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "remote.autoForwardPorts": false
+      }
+    }
+  }
+}
