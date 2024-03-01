@@ -26,4 +26,7 @@ npm run dev
 
 ## References
 
+- [Cloudflare Workers · Cloudflare Workers docs](https://developers.cloudflare.com/workers/)
 - [Models · Cloudflare Workers AI docs](https://developers.cloudflare.com/workers-ai/models/)
+- [workers-sdk/packages/wrangler at main · cloudflare/workers-sdk](https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler)
+- [kwhitley/itty-router: A little router.](https://github.com/kwhitley/itty-router)
