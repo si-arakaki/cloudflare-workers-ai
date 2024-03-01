@@ -35,7 +35,7 @@ npm run dev
 
 ## Credits
 
-- サンプル画像
+- Sample images used in /inpaint page
   - 架乃 ゆら - 映画『グッドバイ、バッドマガジンズ』舞台挨拶（2023年） - © ニール・マッコーリー
     - https://commons.wikimedia.org/wiki/File:Gbbm_0109Kanoyura.jpg
-    - サンプル画像にはAIにより改変された画像を含みます
+    - Some images have been modified by Cloudflare Workers AI
